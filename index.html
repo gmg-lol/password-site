@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Secure Page</title>
+
+<style>
+body {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+#secret { display:none; white-space:pre-wrap; }
+</style>
+</head>
+
+<body>
+
+<div>
+  <h2>비밀번호 입력</h2>
+  <input type="password" id="pw">
+  <button onclick="unlock()">열기</button>
+  <div id="secret"></div>
+</div>
+
+<script>
+async function getKey(password) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: enc.encode("salt"),
+      iterations: 100000,
+      hash: "SHA-256"
+    },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+async function decrypt(data, password) {
+  const key = await getKey(password);
+  const bytes = Uint8Array.from(atob(data), c => c.charCodeAt(0));
+  const iv = bytes.slice(0, 12);
+  const content = bytes.slice(12);
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
+    key,
+    content
+  );
+
+  return new TextDecoder().decode(decrypted);
+}
+
+async function unlock() {
+  const pw = document.getElementById("pw").value;
+
+  const res = await fetch("/get");
+  const data = await res.json();
+
+  if (!data) return alert("데이터 없음");
+
+  try {
+    const text = await decrypt(data.content, pw);
+    document.getElementById("secret").innerText = text;
+    document.getElementById("secret").style.display = "block";
+  } catch {
+    alert("비밀번호 틀림");
+  }
+}
+</script>
+
+</body>
+</html>
