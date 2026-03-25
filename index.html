@@ -25,6 +25,8 @@ body {
 </div>
 
 <script>
+
+// 🔐 공통 키 생성
 async function getKey(password) {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey(
@@ -45,6 +47,7 @@ async function getKey(password) {
   );
 }
 
+// 🔓 복호화
 async function decrypt(data, password) {
   const key = await getKey(password);
   const bytes = Uint8Array.from(atob(data), c => c.charCodeAt(0));
@@ -60,6 +63,26 @@ async function decrypt(data, password) {
   return new TextDecoder().decode(decrypted);
 }
 
+// 🔒 암호화 (🔥 추가된 부분)
+async function encrypt(text, password) {
+  const key = await getKey(password);
+  const enc = new TextEncoder();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    enc.encode(text)
+  );
+
+  const merged = new Uint8Array(iv.length + encrypted.byteLength);
+  merged.set(iv);
+  merged.set(new Uint8Array(encrypted), iv.length);
+
+  return btoa(String.fromCharCode(...merged));
+}
+
+// 🔓 열기
 async function unlock() {
   const pw = document.getElementById("pw").value;
 
@@ -76,6 +99,7 @@ async function unlock() {
     alert("비밀번호 틀림");
   }
 }
+
 </script>
 
 </body>
