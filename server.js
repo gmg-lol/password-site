@@ -24,15 +24,24 @@ const Data = mongoose.model("Data", {
 
 // 저장
 app.post("/save", async (req, res) => {
-  await Data.deleteMany();
-  await Data.create({ content: req.body.content });
-  res.send("저장 완료");
+  try {
+    await Data.deleteMany();
+    await Data.create({ content: req.body.content });
+    res.send("저장 완료");
+  } catch (err) {
+    console.error("❌ 저장 에러:", err);
+    res.status(500).send("서버 에러");
+  }
 });
-
 // 불러오기
 app.get("/get", async (req, res) => {
-  const data = await Data.findOne();
-  res.json(data);
+  try {
+    const data = await Data.findOne();
+    res.json(data);
+  } catch (err) {
+    console.error("❌ 불러오기 에러:", err);
+    res.status(500).send("서버 에러");
+  }
 });
 
 const PORT = process.env.PORT || 3000;
