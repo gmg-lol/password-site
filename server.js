@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // 🔥 여기 수정
-mongoose.connect("mongodb+srv://gmg-lol:growyourgarden1234@cluster0.tzs9uah.mongodb.net/secureDB")
+mongoose.connect("mongodb+srv://gmg-lol:growyourgarden1234@cluster0.tzs9uah.mongodb.net/secureDB?retryWrites=true&w=majority")
   .then(() => {
     console.log("✅ DB 연결 성공");
   })
