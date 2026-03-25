@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 // DB 연결
-mongoose.connect("mongodb://127.0.0.1:27017/secureDB");
+mongoose.connect("mongodb+srv://gmg-lol:<db_password>@cluster0.tzs9uah.mongodb.net/?appName=Cluster0/secureDB");
 
 // 데이터 모델
 const Data = mongoose.model("Data", {
