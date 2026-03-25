@@ -1,3 +1,13 @@
+const mongoose = require("mongoose");
+
+mongoose.connect("mongodb+srv://gmg-lol:<growyourgarden1234!>@cluster0.tzs9uah.mongodb.net/?appName=Cluster0/secureDB")
+  .then(() => {
+    console.log("✅ DB 연결 성공");
+  })
+  .catch(err => {
+    console.error("❌ DB 연결 실패:", err);
+  });
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -8,8 +18,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// DB 연결
-mongoose.connect("mongodb+srv://gmg-lol:<growyourgarden1234!>@cluster0.tzs9uah.mongodb.net/?appName=Cluster0/secureDB");
 
 // 데이터 모델
 const Data = mongoose.model("Data", {
